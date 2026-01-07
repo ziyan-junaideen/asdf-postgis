@@ -28,6 +28,14 @@ install_postgis() {
 
     echo "Building with options: $configure_options"
     ./configure $configure_options
+
+    if command -v pg_config >/dev/null 2>&1; then
+      mkdir -p "$install_path/bin"
+      if [ ! -e "$install_path/bin/postgres" ] && [ -x "$(pg_config --bindir)/postgres" ]; then
+        ln -s "$(pg_config --bindir)/postgres" "$install_path/bin/postgres"
+      fi
+    fi
+
     make -j${ASDF_CONCURRENCY-}
     make install
     echo PostGIS $version has been installed.
@@ -36,7 +44,12 @@ install_postgis() {
 
 
 construct_configure_options() {
-  local configure_options="--prefix=$install_path"
+  local pgconfig_opt=""
+  if command -v pg_config >/dev/null 2>&1; then
+    pgconfig_opt="--with-pgconfig=$(command -v pg_config)"
+  fi
+
+  local configure_options="$pgconfig_opt --prefix=$install_path"
 
   if [ -n "${POSTGIS_CONFIGURE_OPTIONS-}" ]; then
     configure_options="$POSTGIS_CONFIGURE_OPTIONS $configure_options"

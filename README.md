@@ -1,6 +1,12 @@
 # asdf-postgis
 
-PostGIS plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+PostGIS plugin for [asdf](https://github.com/asdf-vm/asdf) and [mise](https://mise.jdx.dev/).
+
+## About
+
+Maintained by **Ziyan Junaideen** (Director of Tooling - Edge Payments Technologies Inc.).
+
+These changes were made to support my personal projects **findlove.lk** and **rakiya.org**, specifically improving compatibility with **PostgreSQL 18.x** installs.
 
 ## Dependencies
 
@@ -39,11 +45,21 @@ Finally, you will need a working installation of PostgreSQL including server hea
 
 ## Installation
 
+### asdf
+
 ```sh
-asdf plugin-add postgis https://github.com/knu/asdf-postgis.git
+asdf plugin-add postgis https://github.com/ziyan-junaideen/asdf-postgis.git
 ```
 
-For [mise](https://mise.jdx.dev/), this plugin is listed in the official registry and you don't need to manually install it.  Just run `mise install postgis 3.2`, which will work.
+### mise
+
+This repo is an asdf-compatible plugin and can be used directly by mise:
+
+```sh
+mise plugins install postgis https://github.com/ziyan-junaideen/asdf-postgis.git
+# or, for local development:
+# mise plugins link postgis /path/to/asdf-postgis
+```
 
 ## ASDF options
 
@@ -85,4 +101,9 @@ asdf-postgis is aware of asdf-postgres and properly installs PostGIS to the curr
 
 ## Notes
 
-- If you want to install the same version of PostGIS to multiple PostgreSQL instances, the second attempt is blocked by `postgis X.Y.Z is already installed`.  In that case, run `asdf uninstall postgis X.Y.Z` and retry.
+- **PostgreSQL 18.x**:
+  - Use **PostGIS 3.6.0+** (older PostGIS releases may not compile against PG18 due to upstream API changes).
+  - This plugin passes `--with-pgconfig=$(command -v pg_config)` to PostGIS' `./configure` to ensure it targets the currently-selected PostgreSQL.
+  - On macOS, PostGIS' topology build can require `-bundle_loader $ASDF_INSTALL_PATH/bin/postgres`; this plugin ensures that path exists by symlinking it to the selected PostgreSQL `postgres` binary.
+
+- If you want to install the same version of PostGIS to multiple PostgreSQL instances, the second attempt is blocked by `postgis X.Y.Z is already installed`. In that case, run `asdf uninstall postgis X.Y.Z` and retry.
