@@ -38,6 +38,25 @@ install_postgis() {
 
     make -j${ASDF_CONCURRENCY-}
     make install
+
+    # PostGIS installs its runtime files into the PostgreSQL prefix (via pg_config).
+    # Ensure this tool's install dir is non-empty so mise/asdf considers it installed.
+    mkdir -p "$install_path/bin" "$install_path/share"
+    cat >"$install_path/bin/postgis-info" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "postgis $version"
+if command -v pg_config >/dev/null 2>&1; then
+  echo "pg_config: $(command -v pg_config)"
+  pg_config --version
+  echo "pkglibdir: $(pg_config --pkglibdir)"
+  echo "sharedir: $(pg_config --sharedir)"
+fi
+EOF
+    chmod +x "$install_path/bin/postgis-info"
+    echo "postgis $version" >"$install_path/share/postgis.version"
+
     echo PostGIS $version has been installed.
   )
 }

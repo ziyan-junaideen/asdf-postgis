@@ -58,7 +58,23 @@ This repo is an asdf-compatible plugin and can be used directly by mise:
 ```sh
 mise plugins install postgis https://github.com/ziyan-junaideen/asdf-postgis.git
 # or, for local development:
-# mise plugins link postgis /path/to/asdf-postgis
+mise plugins link postgis /path/to/asdf-postgis
+```
+
+#### Troubleshooting (mise)
+
+If you see:
+
+```
+Plugin 'postgis' installation failed: Could not open data at '~/.local/share/mise/plugins/postgis'
+```
+
+it usually means `~/.local/share/mise/plugins/postgis` is a broken symlink (e.g. you moved the repo).
+Fix it by relinking:
+
+```sh
+rm -f ~/.local/share/mise/plugins/postgis
+mise plugins link postgis /path/to/asdf-postgis
 ```
 
 ## ASDF options
@@ -101,8 +117,8 @@ asdf-postgis is aware of asdf-postgres and properly installs PostGIS to the curr
 
 ## Notes
 
-- **PostgreSQL 18.x**:
-  - Use **PostGIS 3.6.0+** (older PostGIS releases may not compile against PG18 due to upstream API changes).
+- **PostgreSQL 17.x / 18.x**:
+  - Use **PostGIS 3.6.0+** for PG18 (older PostGIS releases may not compile against PG18 due to upstream API changes).
   - This plugin passes `--with-pgconfig=$(command -v pg_config)` to PostGIS' `./configure` to ensure it targets the currently-selected PostgreSQL.
   - On macOS, PostGIS' topology build can require `-bundle_loader $ASDF_INSTALL_PATH/bin/postgres`; this plugin ensures that path exists by symlinking it to the selected PostgreSQL `postgres` binary.
 
